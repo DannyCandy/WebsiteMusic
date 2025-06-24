@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/clerk-react"; // Hook to get current user data
-import { Edit, Instagram, Twitter, Facebook } from "lucide-react"; // Icons for edit and social media
+import { Instagram, Twitter, Facebook } from "lucide-react"; // Icons for edit and social media
 const Profile = () => {
   // Fetch current user data from Clerk
   const { user } = useUser();

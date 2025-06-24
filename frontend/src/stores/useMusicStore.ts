@@ -23,7 +23,7 @@ interface MusicStore {
 	fetchSongs: () => Promise<void>;
 	deleteSong: (id: string) => Promise<void>;
 	deleteAlbum: (id: string) => Promise<void>;
-	searchAlbumOrLyricsOrSong: (searchTerm: string) => Promise<void>;
+	fetchSongById: (id: string) => Promise<void>;
 }
 
 export const useMusicStore = create<MusicStore>((set) => ({
@@ -41,21 +41,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 		totalUsers: 0,
 		totalArtists: 0,
 	},
-
-	searchAlbumOrLyricsOrSong: async (query) => {
-		// set({ isLoading: true, error: null });
-		try {
-			const res = await axiosInstance.get(`/search?q=${query}`);
-			const results = await res.status === 200 ? res.data : [];
-			return results;
-		} catch (error: any) {
-			console.log("Error in searching", error.message);
-			toast.error("Error searching");
-		} finally {
-			// set({ isLoading: false });
-		}
-	},
-
+ 
 	deleteSong: async (id) => {
 		set({ isLoading: true, error: null });
 		try {
@@ -129,6 +115,18 @@ export const useMusicStore = create<MusicStore>((set) => ({
 	},
 
 	fetchAlbumById: async (id) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axiosInstance.get(`/albums/${id}`);
+			set({ currentAlbum: response.data });
+		} catch (error: any) {
+			set({ error: error.response.data.message });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+
+	fetchSongById: async (id) => {
 		set({ isLoading: true, error: null });
 		try {
 			const response = await axiosInstance.get(`/albums/${id}`);
