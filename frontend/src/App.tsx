@@ -9,7 +9,7 @@ import AdminPage from "./pages/admin/AdminPage";
 
 import { Toaster } from "react-hot-toast";
 import NotFoundPage from "./pages/404/NotFoundPage";
-import LyricsPage from "./pages/lyrics/LyricsPage";
+import SongPage from "./pages/lyrics/SongPage";
 import Profile from "./pages/profile/Profile";
 import SearchPage from "./pages/search/SearchPage";
 
@@ -29,7 +29,7 @@ function App() {
 					<Route path='/chat' element={<ChatPage />} />
 					<Route path='/albums/:albumId' element={<AlbumPage />} />
 					<Route path="/profile" element={<Profile />} /> {/* Add the Profile route */}
-					<Route path='/lyrics' element={<LyricsPage/>} />
+					<Route path='/songs/:songId' element={<SongPage/>} />
 					<Route path="/search" element={<SearchPage />} />
 					<Route path='*' element={<NotFoundPage />} />
 				</Route>

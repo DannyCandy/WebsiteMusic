@@ -1,15 +1,12 @@
 import { useState, useEffect} from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMusicStore } from "@/stores/useMusicStore";
 import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import { axiosInstance } from "@/lib/axios";
  
 const SearchPage = () => {
   // const { albums, fetchAlbums, isLoading, searchAlbumOrLyricsOrSong } = useMusicStore(); 
-  const { isLoading, searchAlbumOrLyricsOrSong } = useMusicStore(); 
-  const [searchQuery, setSearchQuery] = useState("");
-  
   // const [filteredAlbums, setFilteredAlbums] = useState(albums);
   
   // useEffect(() => {
@@ -25,13 +22,30 @@ const SearchPage = () => {
   //     setFilteredAlbums(filtered);
   //   }
   // }, [searchQuery, albums, isLoading]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState<any[]>([]);
+
+  const searchAlbumOrLyricsOrSong = async (query:string) => {
+    try {
+      setIsLoading(true);
+      const res = await axiosInstance.get(`/search?q=${query}`);
+      const results = res.status === 200 ? res.data : [];
+      return results;
+    } catch (error: any) {
+      console.log("Error in searching", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     // if (!isLoading) {
-      const filtered = searchQuery.trim().replace(/\s+/g, " ");
-      console.log("render", searchQuery);
-      if (filtered === "") return;
-      const timeout = setTimeout(async () => {
+    const filtered = searchQuery.trim().replace(/\s+/g, " ");
+    if (filtered === "") return;
+    const timeout = setTimeout(() => {
+      const fetchData = async () => {
         try {
           const result = await searchAlbumOrLyricsOrSong(filtered);
           console.log("result", result);
@@ -41,11 +55,14 @@ const SearchPage = () => {
         } catch (error) {
           console.error("Lỗi khi tìm kiếm:", error);
         }
-      }, 500); // delay 500ms
+      }
+      fetchData();
+    }, 500); // delay 500ms
 
-      return () => clearTimeout(timeout);
+    return () => clearTimeout(timeout);
+
     // }
-  }, [searchQuery, searchAlbumOrLyricsOrSong]);
+  }, [searchQuery]);
 
 
   return (
@@ -91,7 +108,7 @@ const SearchPage = () => {
                   </Link>);
                 }
                 return (<Link
-                  to={`/albums/${album._id}`}
+                  to={`/songs/${album._id}`}
                   key={album._id}
                   className="p-2 hover:bg-lime-800 rounded-md flex items-center gap-3 group cursor-pointer"
                 >

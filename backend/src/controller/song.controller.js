@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Song } from "../models/song.model.js";
 
 export const getAllSongs = async (req, res, next) => {
@@ -79,4 +80,19 @@ export const getTrendingSongs = async (req, res, next) => {
 	} catch (error) {
 		next(error);
 	}
+};
+export const getSongById = async (req, res, next) => {
+    try {
+		const id = req.query.id;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+			return res.status(400).json({ message: "Invalid song ID" });
+		}
+		const song = await Song.findById(id);
+		if (!song) {
+			return res.status(404).json({ message: "Song not found" });
+		}
+		res.status(200).json(song);
+    } catch (error) {
+        next(error);
+    }
 };
