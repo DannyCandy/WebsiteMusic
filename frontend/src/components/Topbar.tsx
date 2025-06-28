@@ -9,7 +9,7 @@ import SignInButs from "./SignInButs";
 
 const Topbar = () => {
 	const { isAdmin } = useAuthStore();
-	console.log({ isAdmin });
+	// console.log({ isAdmin });
 
 	return (
 		<div

@@ -113,6 +113,7 @@ const AddSongDialog = () => {
 					/>
 
 					<input
+						title="Select audio file"
 						type='file'
 						ref={imageInputRef}
 						className='hidden'

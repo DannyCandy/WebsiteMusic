@@ -29,11 +29,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 	currentIndex: -1,
 
 	initializeQueue: (songs: Song[]) => {
+		console.log("songs[0]", songs[0]);
+		console.log("get().currentSong", get().currentSong);
+		console.log("queue[0]", get().queue[0]);
 		set({
 			queue: songs,
 			currentSong: get().currentSong || songs[0],
 			currentIndex: get().currentIndex === -1 ? 0 : get().currentIndex,
 		});
+		console.log("Sau khi init: queue ",get().queue);
+		console.log("songs[0]", songs[0]);
+		console.log("get().currentSong", get().currentSong);
+		console.log("queue[0]", get().queue[0]);
 	},
 
 	playAlbum: (songs: Song[], startIndex = 0) => {
@@ -150,41 +157,49 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 
 	replay: () => {
 		const { currentSong, currentIndex, queue } = get();
-	
+		console.log('lặp lại');
 		if (!currentSong || queue.length === 0) return;
-	
+
 		const songAtIndex = queue[currentIndex];
+
+		const currentSongIndex = get().queue.findIndex((s) => s._id === currentSong._id);
+		console.log('currentSongIndex', currentSongIndex);
+		console.log('currentIndex', currentIndex);
+		console.log('songAtIndex', songAtIndex);
+		console.log('currentSong._id', currentSong._id);
+		console.log('songAtIndex._id', songAtIndex._id);
+
 		if (!songAtIndex || songAtIndex._id !== currentSong._id) return;
-	
+		console.log('lặp lại 3');
 		const socket = useChatStore.getState().socket;
 		if (socket.auth) {
-		  socket.emit("update_activity", {
+			socket.emit("update_activity", {
 			userId: socket.auth.userId,
 			activity: `Replaying ${currentSong.title} by ${currentSong.artist}`,
-		  });
+			});
 		}
-	
+
 		set({
-		  currentSong: { ...currentSong }, // New reference to trigger re-render
-		  isPlaying: true,
+			currentSong: { ...currentSong }, // New reference to trigger re-render
+			isPlaying: true,
 		});
-	  },
-	
-	  toggleRepeat: () => {
+	},
+
+	toggleRepeat: () => {
 		const { isRepeat } = get();
 		set({ isRepeat: !isRepeat });
-	  },
-	  // for lyrics jumping purpose
-	  setCurrentTime: (time: number) => {
+	},
+	// for lyrics jumping purpose
+	setCurrentTime: (time: number) => {
 		const audio = document.querySelector("audio") as HTMLAudioElement;
 		if (audio) {
-		  audio.currentTime = time;
-		  if (!get().isPlaying) {
-			set({ isPlaying: true }); // Ensure playback starts if paused
-			audio.play().catch((error) => console.error("Play failed:", error));
-		  }
+			audio.currentTime = time;
+			if (!get().isPlaying) {
+				set({ isPlaying: true }); // Ensure playback starts if paused
+				audio.play().catch((error) => console.error("Play failed:", error));
+			}
 		}
-	  },
+	},
 	playPrevious: () => {
 		const { currentIndex, queue } = get();
 		const prevIndex = currentIndex - 1;

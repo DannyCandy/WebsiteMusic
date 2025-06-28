@@ -9,6 +9,7 @@ export interface Song {
 	createdAt: string;
 	updatedAt: string;
 	lyrics: string;
+	albumName?: string;
 }
 
 export interface Album {
@@ -41,4 +42,20 @@ export interface User {
 	clerkId: string;
 	fullName: string;
 	imageUrl: string;
+}
+
+export interface AggregatedPaginatedResult<T> {
+	albumName: string;
+	docs: T[];
+	totalDocs: number;
+	limit: number;
+	page: number;
+	totalPages: number;
+	offset?: number;
+	hasPrevPage: boolean;
+	hasNextPage: boolean;
+	prevPage: number | null;
+	nextPage: number | null;
+	pagingCounter: number;
+	meta?: Record<string, any>; 
 }

@@ -12,23 +12,79 @@ export const getAllSongs = async (req, res, next) => {
 	}
 };
 
+export const getAllSongsWithConditions = async (req, res, next) => {
+	try {
+		const { page = 1, limit = 8, sortBy = "createdAt", order = "desc" } = req.query;
+		const sortDirection = order === "asc" ? 1 : -1;
+
+		// Tạo pipeline
+		const pipeline = [
+		{
+			$lookup: {
+			from: "albums",
+			localField: "albumId",
+			foreignField: "_id",
+			as: "album"
+			}
+		},
+		{
+			$unwind: {
+			path: "$album",
+			preserveNullAndEmptyArrays: true
+			}
+		},
+		{
+			$project: {
+				title: 1,
+				artist: 1,
+				imageUrl: 1,
+				audioUrl: 1,
+				duration: 1,
+				createdAt: 1,
+				albumName: "$album.title", // hoặc bạn có thể dùng album nếu cần thêm nhiều trường
+			}
+		},
+		{
+			$sort: { [sortBy]: sortDirection }
+		}
+		];
+
+		// Dùng aggregatePaginate
+		const options = {
+			page: parseInt(page),
+			limit: parseInt(limit)
+		};
+
+		const aggregate = Song.aggregate(pipeline);
+		const songs = await Song.aggregatePaginate(aggregate, options);
+
+		res.json(songs);
+	} catch (error) {
+		next(error);
+	}
+}
+
 export const getFeaturedSongs = async (req, res, next) => {
 	try {
 		// fetch 6 random songs using mongodb's aggregation pipeline
-		const songs = await Song.aggregate([
-			{
-				$sample: { size: 6 },
-			},
-			{
-				$project: {
-					_id: 1,
-					title: 1,
-					artist: 1,
-					imageUrl: 1,
-					audioUrl: 1,
-				},
-			},
-		]);
+		// const songs = await Song.aggregate([
+		// 	{
+		// 		$sample: { size: 6 },
+		// 	},
+		// 	{
+		// 		$project: {
+		// 			_id: 1,
+		// 			title: 1,
+		// 			artist: 1,
+		// 			imageUrl: 1,
+		// 			audioUrl: 1,
+		// 		},
+		// 	},
+		// ]);
+		const songs = await Song.find()
+		.sort({ _id: 1 }) // sắp xếp theo _id tăng dần (mặc định)
+		.limit(6);
+
 
 		res.json(songs);
 	} catch (error) {
@@ -38,20 +94,25 @@ export const getFeaturedSongs = async (req, res, next) => {
 
 export const getMadeForYouSongs = async (req, res, next) => {
 	try {
-		const songs = await Song.aggregate([
-			{
-				$sample: { size: 4 },
-			},
-			{
-				$project: {
-					_id: 1,
-					title: 1,
-					artist: 1,
-					imageUrl: 1,
-					audioUrl: 1,
-				},
-			},
-		]);
+		// const songs = await Song.aggregate([
+		// 	{
+		// 		$sample: { size: 4 },
+		// 	},
+		// 	{
+		// 		$project: {
+		// 			_id: 1,
+		// 			title: 1,
+		// 			artist: 1,
+		// 			imageUrl: 1,
+		// 			audioUrl: 1,
+		// 		},
+		// 	},
+		// ]);
+		const songs = await Song.find()
+		.sort({ _id: 1 })
+		.skip(6)
+		.limit(4);
+
 
 		res.json(songs);
 	} catch (error) {
@@ -61,20 +122,25 @@ export const getMadeForYouSongs = async (req, res, next) => {
 
 export const getTrendingSongs = async (req, res, next) => {
 	try {
-		const songs = await Song.aggregate([
-			{
-				$sample: { size: 4 },
-			},
-			{
-				$project: {
-					_id: 1,
-					title: 1,
-					artist: 1,
-					imageUrl: 1,
-					audioUrl: 1,
-				},
-			},
-		]);
+		// const songs = await Song.aggregate([
+		// 	{
+		// 		$sample: { size: 4 },
+		// 	},
+		// 	{
+		// 		$project: {
+		// 			_id: 1,
+		// 			title: 1,
+		// 			artist: 1,
+		// 			imageUrl: 1,
+		// 			audioUrl: 1,
+		// 		},
+		// 	},
+		// ]);
+		const songs = await Song.find()
+		.sort({ _id: 1 })
+		.skip(10)
+		.limit(4);
+
 
 		res.json(songs);
 	} catch (error) {

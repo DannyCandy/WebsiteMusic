@@ -24,6 +24,7 @@ interface MusicStore {
 	deleteSong: (id: string) => Promise<void>;
 	deleteAlbum: (id: string) => Promise<void>;
 	fetchSongById: (id: string) => Promise<void>;
+	fetchAllSongsForUser: () => Promise<void>;
 }
 
 export const useMusicStore = create<MusicStore>((set) => ({
@@ -76,7 +77,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 			set({ isLoading: false });
 		}
 	},
-
+	//thuộc admin nên cho phép lấy hàng loạt
 	fetchSongs: async () => {
 		set({ isLoading: true, error: null });
 		try {
@@ -137,7 +138,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 			set({ isLoading: false });
 		}
 	},
-
+	//fetch song cho trang home, nguoi dung su dung
 	fetchFeaturedSongs: async () => {
 		set({ isLoading: true, error: null });
 		try {
@@ -169,6 +170,28 @@ export const useMusicStore = create<MusicStore>((set) => ({
 			set({ trendingSongs: response.data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+
+	fetchAllSongsForUser: async () => {
+		set({ isLoading: true, error: null });
+
+		try {
+			const [featuredResponse, madeForYouResponse, trendingResponse] = await Promise.all([
+				axiosInstance.get("/songs/featured"),
+				axiosInstance.get("/songs/made-for-you"),
+				axiosInstance.get("/songs/trending")
+			]);
+
+			set({ 
+				featuredSongs: featuredResponse.data,
+				madeForYouSongs: madeForYouResponse.data,
+				trendingSongs: trendingResponse.data
+			});
+		} catch (error: any) {
+			set({ error: error.response?.data?.message || "Failed to fetch songs" });
 		} finally {
 			set({ isLoading: false });
 		}

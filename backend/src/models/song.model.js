@@ -1,5 +1,6 @@
 import { text } from "express";
 import mongoose from "mongoose";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const songSchema = new mongoose.Schema(
 	{
@@ -40,5 +41,7 @@ const songSchema = new mongoose.Schema(
 	},
 	{ timestamps: true }
 );
+
+songSchema.plugin(aggregatePaginate);
 
 export const Song = mongoose.model("Song", songSchema);

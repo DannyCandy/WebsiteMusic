@@ -22,16 +22,16 @@ const MainLayout = () => {
 	return (
 		<div className='h-screen text-white flex flex-col'>
 			<video
-        autoPlay
-        loop
-        muted
-        className="absolute top-0 left-0 w-full h-full object-cover z-[-10]"
-      >
-        <source src={WhaleAndSea} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+				autoPlay
+				loop
+				muted
+				className="absolute top-0 left-0 w-full h-full object-cover z-[-10]"
+			>
+        		<source src={WhaleAndSea} type="video/mp4" />
+        		Your browser does not support the video tag.
+      		</video>
 			<ResizablePanelGroup direction='horizontal' className='flex-1 flex h-full overflow-hidden p-2'>
-					<AudioPlayer />
+				<AudioPlayer />
 				{/* left sidebar */}
 				<ResizablePanel defaultSize={20} minSize={isMobile ? 0 : 10} maxSize={30}>
 					<LeftSidebar />
@@ -47,7 +47,6 @@ const MainLayout = () => {
 				{!isMobile && (
 					<>
 						<ResizableHandle className='w-2 bg-black bg-opacity-0 rounded-lg transition-colors' />
-
 						{/* right sidebar */}
 						<ResizablePanel defaultSize={20} minSize={0} maxSize={25} collapsedSize={0}>
 							<FriendsActivity />

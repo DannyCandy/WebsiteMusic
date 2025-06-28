@@ -1,44 +1,62 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/usePlayerStore";
-import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Repeat1Icon, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
+import { ListMusic, Pause, Play, Repeat, Repeat1Icon, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-const formatTime = (seconds: number) => {
-	const minutes = Math.floor(seconds / 60);
-	const remainingSeconds = Math.floor(seconds % 60);
-	return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
+import { cn, formatTime } from "@/lib/utils";
+import { useMusicStore } from "@/stores/useMusicStore";
 
 export const PlaybackControls = () => {
 	const { currentSong, isPlaying, isRepeat, togglePlay,toggleRepeat, playNext, playPrevious, shuffleSongs, replay  } = usePlayerStore();
-
 	const [volume, setVolume] = useState(75);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
-	
+	const {
+		fetchAllSongsForUser,
+		madeForYouSongs,
+		featuredSongs,
+		trendingSongs,
+	} = useMusicStore();
+
+	const { initializeQueue } = usePlayerStore();
 
 	useEffect(() => {
+		fetchAllSongsForUser();
+		console.log("fetch lại");
+	}, [fetchAllSongsForUser]);
+
+	useEffect(() => {
+		console.log("madeForYouSongs.length", madeForYouSongs.length);
+		console.log("featuredSongs.length", featuredSongs.length);
+		console.log("trendingSongs.length", trendingSongs.length);
+		if (madeForYouSongs.length > 0 && featuredSongs.length > 0 && trendingSongs.length > 0) {
+			const allSongs = [...featuredSongs, ...madeForYouSongs, ...trendingSongs];
+			initializeQueue(allSongs);
+		}
+	}, [initializeQueue, madeForYouSongs, trendingSongs, featuredSongs]);
+
+	useEffect(() => {
+		// console.log("đã vô PlaybackControls");
 		audioRef.current = document.querySelector("audio");
 
 		const audio = audioRef.current;
 		if (!audio) return;
-
+		// console.log("currentSong ở thanh audio", currentSong);
+		// console.log("currentIndex ở thanh audio", currentIndex);
 		const updateTime = () => setCurrentTime(audio.currentTime);
 		const updateDuration = () => setDuration(audio.duration);
-
 		audio.addEventListener("timeupdate", updateTime);
 		audio.addEventListener("loadedmetadata", updateDuration);
 		const handleEnded = () => {
 			if (isRepeat) {
+				console.log("Khởi động repeat");
 				audio.currentTime = 0;
-			  replay(); 
+			  	replay(); 
 			} else {
-			  playNext(); 
+			  	playNext(); 
 			}
 		  };
 
@@ -49,7 +67,7 @@ export const PlaybackControls = () => {
 			audio.removeEventListener("loadedmetadata", updateDuration);
 			audio.removeEventListener("ended", handleEnded);
 		};
-	}, [currentSong]);
+	}, [currentSong, isRepeat, playNext, replay]);
 
 	const handleSeek = (value: number[]) => {
 		if (audioRef.current) {

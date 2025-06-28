@@ -2,6 +2,9 @@ import { Song } from "@/types";
 import SectionGridSkeleton from "./SectionGridSkeleton";
 import { Button } from "@/components/ui/button";
 import PlayButton from "./PlayButton";
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 type SectionGridProps = {
 	title: string;
@@ -15,9 +18,20 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 		<div className='mb-8'>
 			<div className='flex items-center justify-between mb-4'>
 				<h2 className='text-xl sm:text-2xl font-bold'>{title}</h2>
-				<Button variant='link' className='text-sm text-zinc-400 hover:text-white'>
+				{/* <Button variant='link' className='text-sm text-zinc-400 hover:text-white'>
 					Show all
-				</Button>
+				</Button> */}
+				<Link
+					to={"/songs"}
+					className={cn(
+						buttonVariants({
+							variant: "secondary",
+							className: " text-sm text-zinc-200 hover:text-green-500",
+						})
+					)}
+				>
+					<span className='hidden md:inline'>Show all</span>
+				</Link>
 			</div>
 
 			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>

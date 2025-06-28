@@ -15,7 +15,8 @@ const LeftSidebar = () => {
 		fetchAlbums();
 	}, [fetchAlbums]);
 
-	console.log({ albums });
+	// console.log({ albums });
+	// console.log("render ở LeftSidebar, isLoading", isLoading);
 
 	return (
 		<div className='h-full flex flex-col gap-2 z-[10]'>

@@ -6,7 +6,7 @@ import MainLayout from "./layout/MainLayout";
 import ChatPage from "./pages/chat/ChatPage";
 import AlbumPage from "./pages/album/AlbumPage";
 import AdminPage from "./pages/admin/AdminPage";
-
+import SongLibrary from "./pages/songlibrary/SongLibrary";
 import { Toaster } from "react-hot-toast";
 import NotFoundPage from "./pages/404/NotFoundPage";
 import SongPage from "./pages/lyrics/SongPage";
@@ -30,6 +30,7 @@ function App() {
 					<Route path='/albums/:albumId' element={<AlbumPage />} />
 					<Route path="/profile" element={<Profile />} /> {/* Add the Profile route */}
 					<Route path='/songs/:songId' element={<SongPage/>} />
+					<Route path='/songs' element={<SongLibrary />} />
 					<Route path="/search" element={<SearchPage />} />
 					<Route path='*' element={<NotFoundPage />} />
 				</Route>
