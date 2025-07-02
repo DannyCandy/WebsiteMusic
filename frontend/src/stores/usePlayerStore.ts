@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Song } from "@/types";
 import { useChatStore } from "./useChatStore";
+import toast from "react-hot-toast";
 
 interface PlayerStore {
 	currentSong: Song | null;
@@ -29,18 +30,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 	currentIndex: -1,
 
 	initializeQueue: (songs: Song[]) => {
-		console.log("songs[0]", songs[0]);
-		console.log("get().currentSong", get().currentSong);
-		console.log("queue[0]", get().queue[0]);
+		// console.log("songs[0]", songs[0]);
+		// console.log("get().currentSong", get().currentSong);
+		// console.log("queue[0]", get().queue[0]);
 		set({
 			queue: songs,
 			currentSong: get().currentSong || songs[0],
 			currentIndex: get().currentIndex === -1 ? 0 : get().currentIndex,
 		});
-		console.log("Sau khi init: queue ",get().queue);
-		console.log("songs[0]", songs[0]);
-		console.log("get().currentSong", get().currentSong);
-		console.log("queue[0]", get().queue[0]);
+		// console.log("Sau khi init: queue ",get().queue);
+		// console.log("songs[0]", songs[0]);
+		// console.log("get().currentSong", get().currentSong);
+		// console.log("queue[0]", get().queue[0]);
 	},
 
 	playAlbum: (songs: Song[], startIndex = 0) => {
@@ -103,7 +104,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 	playNext: () => {
 		const { currentIndex, queue } = get();
 		const nextIndex = currentIndex + 1; 	
-
+		console.log("nextIndex", nextIndex);
 		// if there is a next song to play, let's play it
 		if (nextIndex < queue.length) {
 			const nextSong = queue[nextIndex];
@@ -124,7 +125,14 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		} else {
 			// no next song
 			set({ isPlaying: false });
-
+			toast.success("You already enjoyed all great songs!\nJust try another album or song.", {
+				icon: '👏',
+				style: {
+					border: '1px solid #713200',
+					padding: '16px',
+					color: '#713200',
+				},
+			});
 			const socket = useChatStore.getState().socket;
 			if (socket.auth) {
 				socket.emit("update_activity", {
@@ -136,9 +144,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 	},
 
 	shuffleSongs: () => {
-		const { queue, currentIndex } = get();
+		const { queue } = get();
 		const shuffledQueue = [...queue].sort(() => Math.random() - 0.5);
-		const nextSong = shuffledQueue[currentIndex];
+		const nextSong = shuffledQueue[0];
 
 		const socket = useChatStore.getState().socket;
 		if (socket.auth) {
@@ -149,6 +157,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		}
 
 		set({
+			currentIndex: 0,
 			queue: shuffledQueue,
 			currentSong: nextSong,
 			isPlaying: true,
@@ -224,7 +233,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		} else {
 			// no prev song
 			set({ isPlaying: false });
-
+			toast.error("No previous songs", {
+				icon: '⚠️',
+				style: {
+					border: '1px solid #713200',
+					padding: '16px',
+					color: '#713200',
+				},
+				iconTheme: {
+					primary: '#ffc451',
+					secondary: '#E2311C',
+				},
+			});
 			const socket = useChatStore.getState().socket;
 			if (socket.auth) {
 				socket.emit("update_activity", {

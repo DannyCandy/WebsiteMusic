@@ -5,7 +5,7 @@ const AudioPlayer = () => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const prevSongRef = useRef<string | null>(null);
 
-	const { currentSong, isPlaying, playNext } = usePlayerStore();
+	const { currentSong, isPlaying } = usePlayerStore();
 
 	// handle play/pause logic
 	// useEffect(() => {
@@ -37,6 +37,7 @@ const AudioPlayer = () => {
 		console.log("isSongChange ở AudioPlayer",isSongChange);
 		if (isSongChange) {
 			audio.src = currentSong?.audioUrl;
+			audio.load();
 			// reset the playback position
 			audio.currentTime = 0;
 

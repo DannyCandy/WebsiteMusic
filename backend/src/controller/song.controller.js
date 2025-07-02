@@ -14,7 +14,7 @@ export const getAllSongs = async (req, res, next) => {
 
 export const getAllSongsWithConditions = async (req, res, next) => {
 	try {
-		const { page = 1, limit = 8, sortBy = "createdAt", order = "desc" } = req.query;
+		const { page = 1, limit = 8, sortBy = "createdAt", order = "asc" } = req.query;
 		const sortDirection = order === "asc" ? 1 : -1;
 
 		// Tạo pipeline
@@ -57,7 +57,7 @@ export const getAllSongsWithConditions = async (req, res, next) => {
 
 		const aggregate = Song.aggregate(pipeline);
 		const songs = await Song.aggregatePaginate(aggregate, options);
-
+		await new Promise(resolve => setTimeout(resolve, 5000));
 		res.json(songs);
 	} catch (error) {
 		next(error);

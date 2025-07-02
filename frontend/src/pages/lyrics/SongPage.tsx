@@ -1,28 +1,43 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Heart, Share2, Download, Clock, Calendar, Music, User, Album } from "lucide-react"
+import { Heart, Share2, Download, Clock, Calendar, Music, User, Album, Pause, Play } from "lucide-react"
 import { useParams } from "react-router-dom"
 import { usePlayerStore } from "@/stores/usePlayerStore"
 import { Loader2 } from "lucide-react"
 import { axiosInstance } from "@/lib/axios"
 import { Song } from "@/types"
-import PlayButton from "../home/components/PlayButton"
 import { formatDuration } from "@/lib/utils"
+import toast from "react-hot-toast"
 
 const SongPage = () => {
   const [ isLiked, setIsLiked ] = useState(false)
-  // Dữ liệu mẫu cho bài hát
   const { songId } = useParams();
   const [ isLoading, setIsLoading ] = useState(false);
   const [ errorMessage, setErrorMessage ] = useState("");
   const [ song, setSong ] = useState<Song | null>(null);
-  const { initializeQueue } = usePlayerStore();
+  const { setCurrentSong, currentSong, togglePlay, isPlaying: isPlayingGlobal } = usePlayerStore();
+  const [ isPlaying, setIsPlaying ] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const duration = useMemo(() => formatDuration(song?.duration || 0), [song]);
+  console.log("song id", songId);
 
-  console.log("rerender");
+  useEffect(() => {
+    audioRef.current = document.querySelector("audio");
+  }, []);
+
+  useEffect(() => {
+    console.log("vô useEffect, currentSong? , ref", currentSong?._id === songId, audioRef.current);
+    if(currentSong?._id === songId) {
+      setIsPlaying(isPlayingGlobal);
+      return;
+    }
+    setIsPlaying(false);
+  }, [isPlaying, isPlayingGlobal, currentSong, songId]); 
+
   const fetchSongById = useCallback(async (songId:string) => {
     try {
       setIsLoading(true);
@@ -33,10 +48,8 @@ const SongPage = () => {
       });
       const result = response.status === 200 ? response.data : null;
       console.log(result);
-      setSong(result);
       if(result != null){
-        //Xử lý tiếp chỗ này, quy hoạch lại kiến trúc hoạt động nghe nhạc
-        initializeQueue([result]);
+        setSong(result as Song);
       }
     } catch (error: any) {
       setErrorMessage( error.response.data.message );
@@ -45,12 +58,28 @@ const SongPage = () => {
     }
   },[]);
 
+  const handlePlayPause = (song: Song | null) => {
+    if(!song) return;
+    if(song._id === currentSong?._id){
+      togglePlay();
+      setIsPlaying(isPlayingGlobal);
+      return;
+    }
+    setCurrentSong(song);
+    setIsPlaying(isPlayingGlobal);
+  }
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(`${window.location.href}`)
+    toast.success("Link copied to clipboard");
+  }
+
   useEffect(() => {
     if (songId){
       fetchSongById(songId);
     }
   }, [fetchSongById, songId]);
-  const duration = formatDuration(song?.duration || 0);
+
   if (isLoading || errorMessage) 
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-indigo-800 to-purple-950 flex items-center justify-center p-4">
@@ -83,13 +112,24 @@ const SongPage = () => {
         <Card className="overflow-hidden">
           <CardHeader className="pb-4 bg-gradient-to-b from-lime-600 via-indigo-900 to-gray-800">
             <div className="flex flex-col md:flex-row gap-6">
-              {/* Album Cover */}
-              <div className="flex-shrink-0">
+              {/* Album Cover with play button*/}
+              <div className="flex-shrink-0 relative group">
                 <img
                   src={song?.imageUrl || "/placeholder.svg"}
                   alt={`${song?.title} cover`}
-                  className="w-48 h-48 rounded-lg object-cover shadow-lg mx-auto md:mx-0"
+                  className="w-48 h-48 rounded-lg object-cover shadow-lg mx-auto md:mx-0 transition-all duration-300 group-hover:brightness-75"
                 />
+
+                {/* Play/Pause Button Overlay - Only visible on hover */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
+                  <Button
+                    size="icon"
+                    onClick={() =>  handlePlayPause(song)}
+                    className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-400 text-black hover:scale-110 transition-all duration-200 shadow-lg"
+                  >
+                    {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
+                  </Button>
+                </div>
               </div>
 
               {/* Song Info */}
@@ -122,11 +162,6 @@ const SongPage = () => {
 
                 {/* Control Buttons */}
                 <div className="flex flex-wrap gap-3 pt-4">
-                  {/* <Button size="lg" onClick={() => setIsPlaying(!isPlaying)} className="flex items-center gap-2">
-                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                    {isPlaying ? "Tạm dừng" : "Phát nhạc"}
-                  </Button> */}
-                  {song && <PlayButton song={song} />}
 
                   <Button
                     variant={isLiked ? "default" : "outline"}
@@ -138,7 +173,7 @@ const SongPage = () => {
                     Yêu thích
                   </Button>
 
-                  <Button variant="outline" size="lg" className="flex items-center gap-2">
+                  <Button variant="outline" size="lg" className="flex items-center gap-2" onClick={handleShare}>
                     <Share2 className="w-4 h-4" />
                     Chia sẻ
                   </Button>
@@ -174,33 +209,6 @@ const SongPage = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Additional Info Card */}
-        {/* <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">Thông tin thêm</h3>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="font-medium text-gray-900 mb-1">Sáng tác:</p>
-                <p className="text-gray-600">Nhạc sĩ XYZ</p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 mb-1">Sản xuất:</p>
-                <p className="text-gray-600">Studio ABC Music</p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 mb-1">Thể loại:</p>
-                <p className="text-gray-600">Ballad, Pop Việt</p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 mb-1">Ngôn ngữ:</p>
-                <p className="text-gray-600">Tiếng Việt</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card> */}
       </ScrollArea>
     </div>
   )
