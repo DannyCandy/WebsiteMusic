@@ -32,12 +32,7 @@ const songSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Album",
 			required: false,
-		},
-		albumname: {
-			type: String,
-			required: false
 		}
-		
 	},
 	{ timestamps: true }
 );

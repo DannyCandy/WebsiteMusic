@@ -12,10 +12,17 @@ import NotFoundPage from "./pages/404/NotFoundPage";
 import SongPage from "./pages/lyrics/SongPage";
 import Profile from "./pages/profile/Profile";
 import SearchPage from "./pages/search/SearchPage";
+import { useDialogStore } from "./stores/useDialogStore";
+import UpdateSongDialog from "./pages/admin/components/UpdateSongDialog";
+import UpdateAlbumDialog from "./pages/admin/components/UpdateAlbumDialog";
+import UnauthorizedPage from "./pages/404/AuthorizedPage";
 
 function App() {
+	const {isOpen, type} = useDialogStore();
 	return (
 		<>
+			{isOpen && type === 'editSong' && <UpdateSongDialog />}
+			{isOpen && type === 'editAlbum' && <UpdateAlbumDialog />}
 			<Routes>
 				{/* <Route
 					path='/sso-callback'
@@ -23,7 +30,7 @@ function App() {
 				/> */}
 				<Route path='/auth-callback' element={<AuthCallbackPage />} />
 				<Route path='/admin' element={<AdminPage />} />
-
+				<Route path='/unauthorized' element={<UnauthorizedPage />} />
 				<Route element={<MainLayout />}>
 					<Route path='/' element={<HomePage />} />
 					<Route path='/chat' element={<ChatPage />} />

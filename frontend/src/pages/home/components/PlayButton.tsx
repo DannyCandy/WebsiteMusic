@@ -7,7 +7,9 @@ const PlayButton = ({ song }: { song: Song }) => {
 	const { currentSong, isPlaying, setCurrentSong, togglePlay } = usePlayerStore();
 	const isCurrentSong = currentSong?._id === song._id;
 	// console.log("isCurrentSong ở cấp dưới của homepage", isCurrentSong);
-	const handlePlay = () => {
+	const handlePlay = (e: React.MouseEvent) => {
+		e.preventDefault();
+    	e.stopPropagation();
 		if (isCurrentSong) togglePlay();
 		else setCurrentSong(song);
 	};

@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Play, Pause, Heart, MoreHorizontal, Filter, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react"
+import { Heart, MoreHorizontal, Filter, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import useCustomQuery from "@/lib/hooks/useCustomQuery"
 import useSearchFilter from "@/lib/hooks/useSearchFilter"
@@ -52,13 +52,6 @@ export function SongLibrary() {
     // }
     resetQuery();
   }
-
-  const handlePlayPause = (songId: string, event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation() // Ngăn không cho trigger card click
-    console.log("Play/Pause button clicked for:", songId)
-  }
-
   
   const handleShareSong = (songId: string) => {
     navigator.clipboard.writeText(`${window.location.href}/${songId}`)
@@ -190,23 +183,6 @@ export function SongLibrary() {
                             alt={song.title}
                             className="w-full aspect-square object-cover rounded-md"
                           />
-
-                          {/* Play/Pause Button Overlay */}
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md flex items-center justify-center"
-                            // onClick={(e) => e.stopPropagation()}
-                          >
-                            <Button
-                              size="icon"
-                              onClick={(e) => handlePlayPause(song._id,e)} 
-                              className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-400 text-black hover:scale-105 transition-all duration-200"
-                            >
-                              {Math.random() > 0.5 ? (
-                                <Pause className="w-5 h-5" />
-                              ) : (
-                                <Play className="w-5 h-5 ml-0.5" />
-                              )}
-                            </Button>
-                          </div>
 
                           {/* Genre Badge */}
                           <Badge

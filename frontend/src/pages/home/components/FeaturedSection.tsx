@@ -1,11 +1,22 @@
 import { useMusicStore } from "@/stores/useMusicStore";
 import FeaturedGridSkeleton from "@/components/skeletons/FeaturedGridSkeleton";
 import PlayButton from "./PlayButton";
+import { useNavigate } from "react-router-dom";
 
 const FeaturedSection = () => {
 	const { isLoading, featuredSongs, error } = useMusicStore();
-
+	const navigate = useNavigate();
 	if (isLoading) return <FeaturedGridSkeleton />;
+
+	const handleCardClick = (e: React.MouseEvent, songId: string) => {
+		const target = e.target as HTMLElement
+		const isButtonClick = target.closest("button")
+
+		if (isButtonClick) {
+			return;
+		}
+		navigate(`/songs/${songId}`)
+	}
 
 	if (error) return <p className='text-red-500 mb-4 text-lg'>{error}</p>;
 
@@ -14,8 +25,9 @@ const FeaturedSection = () => {
 			{featuredSongs.map((song) => (
 				<div
 					key={song._id}
-					className='flex items-center bg-zinc-800/50 rounded-md overflow-hidden
-         hover:bg-zinc-700/50 transition-colors group cursor-pointer relative'
+					onClick={(e) => handleCardClick(e, song._id)}
+					className='flex items-center bg-zinc-800 rounded-md overflow-hidden
+					hover:bg-zinc-700/80 transition-colors group cursor-pointer relative'
 				>
 					<img
 						src={song.imageUrl}

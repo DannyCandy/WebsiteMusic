@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
-import { useMusicStore } from "@/stores/useMusicStore";
+import { useAdminMusicStore } from "@/stores/useAdminMusicStore";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -24,14 +24,14 @@ interface NewSong {
 }
 
 const AddSongDialog = () => {
-	const { albums } = useMusicStore();
+	const { albums } = useAdminMusicStore();
 	const [songDialogOpen, setSongDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const [newSong, setNewSong] = useState<NewSong>({
 		title: "",
 		artist: "",
-		album: "",
+		album: "none",
 		duration: "0",
 	});
 
@@ -63,7 +63,7 @@ const AddSongDialog = () => {
 			formData.append("audioFile", files.audio);
 			formData.append("imageFile", files.image);
 
-			await axiosInstance.post("/admin/songs", formData, {
+			await axiosInstance.post("/admin/songs/create", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},

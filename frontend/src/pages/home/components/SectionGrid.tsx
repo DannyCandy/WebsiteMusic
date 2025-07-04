@@ -1,8 +1,7 @@
 import { Song } from "@/types";
 import SectionGridSkeleton from "./SectionGridSkeleton";
-import { Button } from "@/components/ui/button";
 import PlayButton from "./PlayButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -12,6 +11,17 @@ type SectionGridProps = {
 	isLoading: boolean;
 };
 const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
+	const navigate = useNavigate();
+	const handleCardClick = (e: React.MouseEvent, songId: string) => {
+		const target = e.target as HTMLElement
+		const isButtonClick = target.closest("button")
+
+		if (isButtonClick) {
+			return;
+		}
+		navigate(`/songs/${songId}`)
+	}
+
 	if (isLoading) return <SectionGridSkeleton />;
 
 	return (
@@ -38,7 +48,8 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 				{songs.map((song) => (
 					<div
 						key={song._id}
-						className='bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer'
+						onClick={(e) => handleCardClick(e, song._id)}
+						className='bg-zinc-800 p-4 rounded-md hover:bg-zinc-700/80 transition-all group cursor-pointer'
 					>
 						<div className='relative mb-4'>
 							<div className='aspect-square rounded-md shadow-lg overflow-hidden'>

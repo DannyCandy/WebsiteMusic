@@ -1,4 +1,4 @@
-import { SignedOut, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { LayoutDashboardIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 // import SignInOAuthButtons from "./SignInOAuthButtons";
@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "./ui/button";
 import SignInButs from "./SignInButs";
 
+const SIGNINURL_KEY = import.meta.env.CLERK_SIGN_IN_URL;
 const Topbar = () => {
 	const { isAdmin } = useAuthStore();
 	// console.log({ isAdmin });
@@ -14,8 +15,7 @@ const Topbar = () => {
 	return (
 		<div
 			className='flex items-center justify-between p-4 sticky top-0 bg-zinc-900/75 
-      backdrop-blur-md z-10
-    '
+      		backdrop-blur-md z-10'
 		>
 			<div className='flex gap-2 items-center'>
 				<img src='/spotify.png' className='size-8' alt='Spotify logo' />
@@ -34,7 +34,9 @@ const Topbar = () => {
 					<SignInButs />
 				</SignedOut>
 
-				<UserButton />
+				<SignedIn>
+					<UserButton signInUrl={SIGNINURL_KEY} />
+				</SignedIn>
 			</div>
 		</div>
 	);

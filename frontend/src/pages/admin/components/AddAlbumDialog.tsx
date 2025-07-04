@@ -48,7 +48,7 @@ const AddAlbumDialog = () => {
 			formData.append("releaseYear", newAlbum.releaseYear.toString());
 			formData.append("imageFile", imageFile);
 
-			await axiosInstance.post("/admin/albums", formData, {
+			await axiosInstance.post("/admin/albums/create", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -84,6 +84,7 @@ const AddAlbumDialog = () => {
 				</DialogHeader>
 				<div className='space-y-4 py-4'>
 					<input
+						placeholder="Input your album's cover image"
 						type='file'
 						ref={fileInputRef}
 						onChange={handleImageSelect}

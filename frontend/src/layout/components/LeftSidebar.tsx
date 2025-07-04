@@ -5,14 +5,20 @@ import { cn } from "@/lib/utils";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { SignedIn } from "@clerk/clerk-react";
 import { HomeIcon, Library, MessageCircle, SearchIcon, UserIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const LeftSidebar = () => {
-	const { albums, fetchAlbums, isLoading } = useMusicStore();
-
+	const { albums, fetchAlbums } = useMusicStore();
+	const [ loading, setLoading ] = useState(false);
 	useEffect(() => {
-		fetchAlbums();
+    const loadAlbums = async () => {
+        setLoading(true);
+		await fetchAlbums();
+		setLoading(false);
+    };
+
+    loadAlbums();
 	}, [fetchAlbums]);
 
 	// console.log({ albums });
@@ -90,7 +96,7 @@ const LeftSidebar = () => {
 
 				<ScrollArea className='h-[calc(100vh-300px)]'>
 					<div className='space-y-2'>
-						{isLoading ? (
+						{loading ? (
 							<PlaylistSkeleton />
 						) : (
 							albums.map((album) => (

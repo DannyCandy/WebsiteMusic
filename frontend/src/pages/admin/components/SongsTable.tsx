@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useMusicStore } from "@/stores/useMusicStore";
-import { Calendar, Trash2 } from "lucide-react";
+import { useAdminMusicStore } from "@/stores/useAdminMusicStore";
+import { useDialogStore } from "@/stores/useDialogStore";
+import { Calendar, Edit2, Trash2 } from "lucide-react";
 
 const SongsTable = () => {
-	const { songs, isLoading, error, deleteSong } = useMusicStore();
+	const { songs, isLoading, error, deleteSong } = useAdminMusicStore();
+	const { openUpdateSongDialog } = useDialogStore();
 
 	if (isLoading) {
 		return (
@@ -51,6 +53,13 @@ const SongsTable = () => {
 
 						<TableCell className='text-right'>
 							<div className='flex gap-2 justify-end'>
+								<Button className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10" 
+									variant="ghost" 
+									size="sm"
+									onClick={() => openUpdateSongDialog( song)}
+								>
+									<Edit2 className="h-4 w-4" />
+								</Button>
 								<Button
 									variant={"ghost"}
 									size={"sm"}

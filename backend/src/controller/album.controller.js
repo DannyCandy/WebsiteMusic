@@ -2,7 +2,9 @@ import { Album } from "../models/album.model.js";
 
 export const getAllAlbums = async (req, res, next) => {
 	try {
-		const albums = await Album.find();
+		const albums = await Album.find()
+		.sort({ createdAt: -1 }) 
+		.limit(6);     
 		res.status(200).json(albums);
 	} catch (error) {
 		next(error);
