@@ -1,12 +1,13 @@
 import Topbar from "@/components/Topbar";
 import { useChatStore } from "@/stores/useChatStore";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import UsersList from "./components/UsersList";
 import ChatHeader from "./components/ChatHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import MessageInput from "./components/MessageInput";
+import { updateApiToken } from "@/lib/utils";
 
 const formatTime = (date: string) => {
 	return new Date(date).toLocaleTimeString("en-US", {
@@ -19,14 +20,28 @@ const formatTime = (date: string) => {
 const ChatPage = () => {
 	const { user } = useUser();
 	const { messages, selectedUser, fetchUsers, fetchMessages } = useChatStore();
+	const { getToken } = useAuth();
+	useEffect(() => {
+		const fetchOnlineUser = async () => {
+			const token = await getToken();
+			if (token) {
+				updateApiToken(token);
+			}
+			if (user) await fetchUsers();
+		}
+		fetchOnlineUser();
+	}, [fetchUsers, user, getToken]);
 
 	useEffect(() => {
-		if (user) fetchUsers();
-	}, [fetchUsers, user]);
-
-	useEffect(() => {
-		if (selectedUser) fetchMessages(selectedUser.clerkId);
-	}, [selectedUser, fetchMessages]);
+		const fetchMess = async () => {
+			const token = await getToken();
+			if (token) {
+				updateApiToken(token);
+			}
+			if (selectedUser) await fetchMessages(selectedUser.clerkId);
+		}
+		fetchMess();
+	}, [selectedUser, fetchMessages, getToken]);
 
 	console.log({ messages });
 

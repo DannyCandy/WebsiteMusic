@@ -16,6 +16,8 @@ import { useDialogStore } from "./stores/useDialogStore";
 import UpdateSongDialog from "./pages/admin/components/UpdateSongDialog";
 import UpdateAlbumDialog from "./pages/admin/components/UpdateAlbumDialog";
 import UnauthorizedPage from "./pages/404/AuthorizedPage";
+import DeleteSongDialog from "./pages/admin/components/DeleteSongDialog";
+import DeleteAlbumDialog from "./pages/admin/components/DeleteAlbumDialog";
 
 function App() {
 	const {isOpen, type} = useDialogStore();
@@ -23,6 +25,8 @@ function App() {
 		<>
 			{isOpen && type === 'editSong' && <UpdateSongDialog />}
 			{isOpen && type === 'editAlbum' && <UpdateAlbumDialog />}
+			{isOpen && type === 'deleteSong' && <DeleteSongDialog />}
+			{isOpen && type === 'deleteAlbum' && <DeleteAlbumDialog />}
 			<Routes>
 				{/* <Route
 					path='/sso-callback'

@@ -9,8 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/lib/axios";
+import { updateApiToken } from "@/lib/utils";
 import { useAdminMusicStore } from "@/stores/useAdminMusicStore";
 import { useDialogStore } from "@/stores/useDialogStore";
+import { useAuth } from "@clerk/clerk-react";
 import { Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -23,6 +25,7 @@ const UpdateAlbumDialog = () => {
 	// 	releaseYear: new Date().getFullYear(),
 	// });
     console.log("rerender");
+    const { getToken } = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
     const {updateSpecificAlbumInStore} = useAdminMusicStore();
 	const editFileInputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +54,7 @@ const UpdateAlbumDialog = () => {
         }
     };
 
-	const handleEditSubmit = () => {
+	const handleEditSubmit = async () => {
         if (!imageFile) {
             if(!newAlbum.imageUrl) {
                 return toast.error("Please upload an image");
@@ -66,7 +69,10 @@ const UpdateAlbumDialog = () => {
         if (imageFile) {
             formData.append("imageFile", imageFile);
         }
-
+        const token = await getToken();
+        if (token) {
+            updateApiToken(token);
+        }
         const promise = axiosInstance
             .put(`/admin/albums/update/${album}`, formData, {
                 headers: {

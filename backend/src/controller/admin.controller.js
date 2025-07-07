@@ -111,7 +111,9 @@ export const updateSong = async (req, res, next) => {
 export const deleteSong = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-
+		if (!id) {
+			return res.status(400).json({ error: "songId is required" });
+		}
 		const song = await Song.findById(id);
 
 		// if song belongs to an album, update the album's songs array
@@ -191,6 +193,9 @@ export const updateAlbum = async (req, res, next) => {
 export const deleteAlbum = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		if (!id) {
+			return res.status(400).json({ error: "albumId is required" });
+		}
 		await Song.deleteMany({ albumId: id });
 		await Album.findByIdAndDelete(id);
 		res.status(200).json({ message: "Album deleted successfully" });
@@ -206,9 +211,230 @@ export const checkAdmin = async (req, res, next) => {
 
 export const getAllAlbums = async (req, res, next) => {
 	try {
-		const albums = await Album.find()
-		.sort({ createdAt: -1 }) 
+		const { page = 1, sortBy = "createdAt", order = "asc", q = "" } = req.query;
+		const sortDirection = order === "asc" ? 1 : -1;
+
+		// Tạo pipeline
+		const pipeline = [];
+		if (q.trim()) {
+			pipeline.push(
+				{
+					$search: {
+						index: "searchalbum",
+						compound: {
+						should: [
+							{
+							autocomplete: {
+								query: q,
+								path: "title",
+								tokenOrder: "any",
+								fuzzy: {
+								maxEdits: 2,
+								prefixLength: 3
+								}
+							}
+							}
+						]
+						}
+					}
+				},
+				{
+					$addFields: {
+						score: { $meta: "searchScore" }
+					}
+				},
+				{
+					$match: {
+						score: { $gt: 0 }
+					}
+				},
+				{
+					$sort: {
+						score: -1,
+						[sortBy]: sortDirection
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						title: 1,
+						artist: 1,
+						imageUrl: 1,
+						releaseYear: 1,
+						songs: 1,
+					}
+				}
+			);
+		} else {
+		// Khi không có từ khóa -> bỏ qua search, chỉ sort theo điều kiện
+			pipeline.push(
+				{
+					$sort: {
+						[sortBy]: sortDirection
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						title: 1,
+						artist: 1,
+						imageUrl: 1,
+						releaseYear: 1,
+						songs: 1,
+					}
+				}
+			);
+		}
+		// Dùng aggregatePaginate
+		const options = {
+			page: parseInt(page),
+			limit: 10
+		};
+
+		const aggregate = Album.aggregate(pipeline);
+		const albums = await Album.aggregatePaginate(aggregate, options);
+		
 		res.status(200).json(albums);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getAllSongs = async (req, res, next) => {
+	try {
+		const { page = 1, sortBy = "createdAt", order = "asc", q = "" } = req.query;
+		const sortDirection = order === "asc" ? 1 : -1;
+
+		// Tạo pipeline
+		const pipeline = [];
+		if (q.trim()) {
+			pipeline.push(
+				{
+					$search: {
+						index: "adminSearchSong",
+						compound: {
+							should: [
+							{
+								autocomplete: {
+									query: q,
+									path: "lyrics",
+									tokenOrder: "any",
+									fuzzy: {
+										maxEdits: 2,
+										prefixLength: 3
+									}
+								}
+							},
+							{
+								autocomplete: {
+									query: q,
+									path: "title",
+									tokenOrder: "any",
+									fuzzy: {
+										maxEdits: 2,
+										prefixLength: 3
+									}
+								}
+							}],
+							minimumShouldMatch: 1
+						}
+					}
+				},
+				{
+					$addFields: {
+						score: { $meta: "searchScore" },
+					}
+				},
+				{
+					$match: {
+						score: { $gt: 0 }
+					}
+				},
+				{
+					$sort: {
+						score: -1,
+						[sortBy]: sortDirection
+					}
+				},
+				{
+					$lookup: {
+						from: "albums",
+						localField: "albumId",
+						foreignField: "_id",
+						as: "album"
+					}
+				},
+				{
+					$unwind: {
+						path: "$album",
+						preserveNullAndEmptyArrays: true
+					}
+				},
+				{
+					$addFields: {
+						albumName: "$album.title"
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						title: 1,
+						artist: 1,
+						imageUrl: 1,
+						createdAt: 1,
+						albumName: 1,
+					}
+				}
+			);
+		} else {
+		// Khi không có từ khóa -> bỏ qua search, chỉ sort theo điều kiện
+			pipeline.push(
+				{
+					$lookup: {
+						from: "albums",
+						localField: "albumId",
+						foreignField: "_id",
+						as: "album"
+					}
+				},
+				{
+					$unwind: {
+						path: "$album",
+						preserveNullAndEmptyArrays: true
+					}
+				},
+				{
+					$addFields: {
+						albumName: "$album.title"
+					}
+				},
+				{
+					$sort: {
+						[sortBy]: sortDirection
+					}
+				},
+				{
+					$project: {
+						_id: 1,
+						title: 1,
+						artist: 1,
+						imageUrl: 1,
+						createdAt: 1,
+						albumName: 1,
+					}
+				}
+			);
+		}
+		// Dùng aggregatePaginate
+		const options = {
+			page: parseInt(page),
+			limit: 10
+		};
+
+		const aggregate = Song.aggregate(pipeline);
+		const songs = await Song.aggregatePaginate(aggregate, options);
+		
+		res.status(200).json(songs);
 	} catch (error) {
 		next(error);
 	}

@@ -25,6 +25,7 @@ const MainLayout = () => {
 				autoPlay
 				loop
 				muted
+				preload="auto"
 				className="absolute top-0 left-0 w-full h-full object-cover z-[-10]"
 			>
         		<source src={WhaleAndSea} type="video/mp4" />

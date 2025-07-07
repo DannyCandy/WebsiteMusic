@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Heart, MoreHorizontal, Filter, ChevronLeft, ChevronRight, Share2, Download } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import useCustomQuery from "@/lib/hooks/useCustomQuery"
@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { formatDuration } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
+import { useEffect, useState } from "react"
 
 
 const filterOptions = [
@@ -27,11 +28,33 @@ export function SongLibrary() {
     limit: 8,
     order: "asc",
   });
-  const { data, isLoading, isError, isPlaceholderData, isFetching } = useSearchFilter( query);
+  const { data, isLoading, isError, isPlaceholderData, isFetching } = useSearchFilter<Song>( query, "songs/search");
   const navigate = useNavigate();
   // const queryClient = useQueryClient();
   console.log("data", data);
+  const [pageRange, setPageRange] = useState<number[]>([]);
+  useEffect(() => {
+    const totalPages = data?.totalPages || 1;
+    if(totalPages < 4){
+      setPageRange(Array.from({ length: totalPages },(_, i) => i + 1))
+      return;
+    }else{
+      if (data?.hasNextPage && data?.hasPrevPage) {
+        setPageRange([data.page - 1, data.page, data.page + 1])
+        return;
+      }
 
+      if (data?.hasNextPage && !data?.hasPrevPage) {
+        setPageRange([data.page, data.page + 1, data.page + 2]);
+        return;
+      }
+
+      if (!data?.hasNextPage && data?.hasPrevPage) {
+        setPageRange([data.page - 2, data.page - 1, data.page])
+        return;
+      }
+    }
+  },[data])
   const handleSort = (indexOtp: number) => {
     // if(isFetching){
     //   queryClient.cancelQueries({ queryKey });
@@ -98,13 +121,13 @@ export function SongLibrary() {
                   <SelectValue placeholder="Sắp xếp" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectGroup>
+                  {/* <SelectGroup> */}
                     {filterOptions.map((e,i) => (
                       <SelectItem key={i} value={i.toString()}>
                         {e.label}
                       </SelectItem>
                     ))}
-                  </SelectGroup>
+                  {/* </SelectGroup> */}
                 </SelectContent>
               </Select>
             </div>
@@ -263,42 +286,6 @@ export function SongLibrary() {
 
       {/* Pagination - Fixed at bottom, overlapping the ScrollArea */}
       <div className="sticky bottom-0 bg-gradient-to-t from-black via-black/95 to-transparent pt-6 pb-4 px-6 rounded-md">
-        {/* <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => goToPage(query.page - 1)}
-            disabled={!data?.hasPrevPage}
-            className="bg-gray-800 border-gray-700 hover:bg-gray-700"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-
-          {Array.from({ length: data?.totalPages || 1 }, (_, i) => i + 1).map((p) => (
-            <Button
-              key={p}
-              variant={data?.page === p ? "default" : "outline"}
-              onClick={() => goToPage(p)}
-              className={
-                data?.page === p
-                  ? "bg-green-500 hover:bg-green-400 text-black"
-                  : "bg-gray-800 text-zinc-100 hover:bg-gray-700"
-              }
-            >
-              {p}
-            </Button>
-          ))}
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => goToPage(query.page + 1)}
-            disabled={!data?.hasNextPage}
-            className="bg-gray-800 border-gray-700 hover:bg-gray-700"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div> */}
         <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
@@ -310,7 +297,8 @@ export function SongLibrary() {
             <ChevronLeft className="w-4 h-4" />
           </Button>
 
-          {Array.from({ length: data?.totalPages || 1 }, (_, i) => i + 1).map((p) => (
+          {/* {Array.from({ length: data?.totalPages || 1 }, (_, i) => i + 1).map((p) => ( */}
+          {pageRange.map((p) => (
             <Button
               key={p}
               variant={query.page === p ? "default" : "outline"}

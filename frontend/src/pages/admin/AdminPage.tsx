@@ -7,18 +7,32 @@ import SongsTabContent from "./components/SongsTabContent";
 import AlbumsTabContent from "./components/AlbumsTabContent";
 import { useEffect } from "react";
 import { useAdminMusicStore } from "@/stores/useAdminMusicStore";
+import UnauthorizedPage from "../404/AuthorizedPage";
+import { updateApiToken } from "@/lib/utils";
+import { useAuth } from "@clerk/clerk-react";
 
 const AdminPage = () => {
 	const { isAdmin, isLoading } = useAuthStore();
-
-	const { fetchAlbums, fetchSongs, fetchStats } = useAdminMusicStore();
+	const { getToken } = useAuth();
+	const { fetchStats } = useAdminMusicStore();
 	useEffect(() => {
-		fetchAlbums();
-		fetchSongs();
-		fetchStats();
-	}, [fetchAlbums, fetchSongs, fetchStats]);
+	/**
+	 * Fetches the token from Clerk and updates axios with the token.
+	 * Then fetches the stats from the server.
+	 */
+		const fetchStatus = async () => {
+			const token = await getToken();
+			if (token) {
+				updateApiToken(token);
+			}
+			await fetchStats();
+		}
+		fetchStatus();
+	}, [fetchStats, getToken]);
 
-	if (!isAdmin && !isLoading) return <div>Unauthorized</div>;
+	if (!isAdmin && !isLoading) {
+		return <UnauthorizedPage />;
+	}
 
 	return (
 		<div

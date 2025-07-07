@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/lib/axios";
+import { updateApiToken } from "@/lib/utils";
+import { useAuth } from "@clerk/clerk-react";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -18,6 +20,7 @@ const AddAlbumDialog = () => {
 	const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const { getToken } = useAuth();
 
 	const [newAlbum, setNewAlbum] = useState({
 		title: "",
@@ -47,7 +50,10 @@ const AddAlbumDialog = () => {
 			formData.append("artist", newAlbum.artist);
 			formData.append("releaseYear", newAlbum.releaseYear.toString());
 			formData.append("imageFile", imageFile);
-
+			const token = await getToken();
+			if (token) {
+				updateApiToken(token);
+			}
 			await axiosInstance.post("/admin/albums/create", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",

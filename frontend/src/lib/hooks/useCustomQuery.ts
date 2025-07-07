@@ -8,9 +8,9 @@ const useCustomQuery = (initial: QueryObject): [
     const [ query, setQuery ] = useState(initial);
 
     const updateQuery = (newQuery: Partial<QueryObject>) => {
-    setQuery((prev) => ({
-      ...prev,
-      ...newQuery,
+      setQuery((prev) => ({
+        ...prev,
+        ...newQuery,
     }));
   };
 

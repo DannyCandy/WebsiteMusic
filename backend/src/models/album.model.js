@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const albumSchema = new mongoose.Schema(
 	{
@@ -10,5 +11,5 @@ const albumSchema = new mongoose.Schema(
 	},
 	{ timestamps: true }
 ); //  createdAt, updatedAt
-
+albumSchema.plugin(aggregatePaginate);
 export const Album = mongoose.model("Album", albumSchema);

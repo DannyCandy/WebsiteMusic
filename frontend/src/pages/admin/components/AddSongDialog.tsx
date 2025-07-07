@@ -11,7 +11,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
+import { updateApiToken } from "@/lib/utils";
 import { useAdminMusicStore } from "@/stores/useAdminMusicStore";
+import { useAuth } from "@clerk/clerk-react";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -27,7 +29,7 @@ const AddSongDialog = () => {
 	const { albums } = useAdminMusicStore();
 	const [songDialogOpen, setSongDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-
+	const { getToken } = useAuth();
 	const [newSong, setNewSong] = useState<NewSong>({
 		title: "",
 		artist: "",
@@ -63,6 +65,10 @@ const AddSongDialog = () => {
 			formData.append("audioFile", files.audio);
 			formData.append("imageFile", files.image);
 
+			const token = await getToken();
+			if (token) {
+				updateApiToken(token);
+			}
 			await axiosInstance.post("/admin/songs/create", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",

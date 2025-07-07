@@ -10,8 +10,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
+import { updateApiToken } from "@/lib/utils";
 import { useAdminMusicStore } from "@/stores/useAdminMusicStore";
 import { useDialogStore } from "@/stores/useDialogStore";
+import { useAuth } from "@clerk/clerk-react";
 import { Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -42,7 +44,7 @@ const UpdateSongDialog = () => {
 	console.log("song", song);
 	const [audioFile, setAudioFile] = useState<File | null>(null);
 	const [imageFile, setImageFile] = useState<File | null>(null);
-
+	const { getToken } = useAuth();
 	const audioInputRef = useRef<HTMLInputElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,7 +94,10 @@ const UpdateSongDialog = () => {
 		if(audioFile){
 			formData.append("audioFile", audioFile);
 		}
-
+		const token = await getToken();
+		if (token) {
+			updateApiToken(token);
+		}
 		const promise = axiosInstance.post(`/admin/songs/update/${song?._id}`, formData, {
 			headers: {
 				"Content-Type": "multipart/form-data",

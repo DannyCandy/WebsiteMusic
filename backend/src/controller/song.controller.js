@@ -19,34 +19,34 @@ export const getAllSongsWithConditions = async (req, res, next) => {
 
 		// Tạo pipeline
 		const pipeline = [
-		{
-			$lookup: {
-			from: "albums",
-			localField: "albumId",
-			foreignField: "_id",
-			as: "album"
-			}
-		},
-		{
-			$unwind: {
-			path: "$album",
-			preserveNullAndEmptyArrays: true
-			}
-		},
-		{
-			$project: {
-				title: 1,
-				artist: 1,
-				imageUrl: 1,
-				audioUrl: 1,
-				duration: 1,
-				createdAt: 1,
-				albumName: "$album.title", // hoặc bạn có thể dùng album nếu cần thêm nhiều trường
-			}
-		},
-		{
-			$sort: { [sortBy]: sortDirection }
-		}
+			{
+				$lookup: {
+					from: "albums",
+					localField: "albumId",
+					foreignField: "_id",
+					as: "album"
+				}
+			},
+			{
+				$unwind: {
+					path: "$album",
+					preserveNullAndEmptyArrays: true
+				}
+			},
+			{
+				$project: {
+					title: 1,
+					artist: 1,
+					imageUrl: 1,
+					audioUrl: 1,
+					duration: 1,
+					createdAt: 1,
+					albumName: "$album.title", // hoặc bạn có thể dùng album nếu cần thêm nhiều trường
+				}
+			},
+			{
+				$sort: { [sortBy]: sortDirection }
+			},
 		];
 
 		// Dùng aggregatePaginate

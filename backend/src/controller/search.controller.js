@@ -2,7 +2,7 @@ import { Song } from "../models/song.model.js";
 //xử lý fulltext search trả về dữ liệu
 export const fulltextSearch = async (req, res, next) => {
     try {
-        const query = req.query.q;
+        const query = req.query.q ?? "";
         const pineline = [
             {
               $search: {
@@ -90,91 +90,3 @@ export const fulltextSearch = async (req, res, next) => {
         next(error);
     }
 };
-/*
-[
-  // PHẦN 1: Truy vấn từ collection Song
-  {
-    $search: {
-      index: "lyricsongandalbum",
-      compound: {
-        should: [
-          {
-            autocomplete: {
-              query: "Son Tung",
-              path: "lyrics",
-              tokenOrder: "any",
-              fuzzy: {
-                maxEdits: 2,
-                prefixLength: 3
-              }
-            }
-          },
-          {
-            autocomplete: {
-              query: "Son Tung",
-              path: "title",
-              tokenOrder: "any",
-              fuzzy: {
-                maxEdits: 2,
-                prefixLength: 3
-              }
-            }
-          }
-        ],
-        minimumShouldMatch: 1
-      }
-    }
-  },
-  {
-    $addFields: {
-      score: { $meta: "searchScore" },
-      source: "Song"
-    }
-  },
-  {
-    $match: {
-      score: { $gt: 1 }
-    }
-  },
-
-  // PHẦN 2: Truy vấn từ collection Album và gộp kết quả với $unionWith
-  {
-    $unionWith: {
-      coll: "Album",
-      pipeline: [
-        {
-          $search: {
-            index: "lyricsongandalbum",
-            autocomplete: {
-              query: "Son Tung",
-              path: "albumname",
-              tokenOrder: "any",
-              fuzzy: {
-                maxEdits: 2,
-                prefixLength: 3
-              }
-            }
-          }
-        },
-        {
-          $addFields: {
-            score: { $meta: "searchScore" },
-            source: "Album"
-          }
-        },
-        {
-          $match: {
-            score: { $gt: 1 }
-          }
-        }
-      ]
-    }
-  },
-
-  // Sắp xếp kết quả cuối cùng theo độ liên quan
-  {
-    $sort: { score: -1 }
-  }
-]
-
-*/
