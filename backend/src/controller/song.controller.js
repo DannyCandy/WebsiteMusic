@@ -57,7 +57,6 @@ export const getAllSongsWithConditions = async (req, res, next) => {
 
 		const aggregate = Song.aggregate(pipeline);
 		const songs = await Song.aggregatePaginate(aggregate, options);
-		await new Promise(resolve => setTimeout(resolve, 5000));
 		res.json(songs);
 	} catch (error) {
 		next(error);

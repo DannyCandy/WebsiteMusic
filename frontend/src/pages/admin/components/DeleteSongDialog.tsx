@@ -95,7 +95,7 @@ const DeleteSongDialog = () => {
                     </div>
                     <AlertDialogTitle className="text-xl font-semibold text-white">Delete song</AlertDialogTitle>
                     <AlertDialogDescription className="text-gray-300 text-base">
-                        Are you sure you want to delete this<span className="font-semibold text-white">song</span>
+                        Are you sure you want to delete this <span className="font-semibold text-white">song</span> ?
                         <br />
                         <span className="text-purple-400 text-sm mt-2 block">
                         This action cannot be undone

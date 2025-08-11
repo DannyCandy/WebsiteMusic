@@ -159,15 +159,15 @@ const SongsTable = () => {
 					Showing {data?.docs.length} of {data?.totalDocs} songs
 				</span>
 				{filter && (
-				<div className="flex items-center gap-2">
-					<span>Active filters:</span>
-					{searchQuery && (
-						<span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
-							Search: "{searchQuery}"
-						</span>
-					)}
-					<span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">Filter: {filter}</span>
-				</div>
+					<div className="flex items-center gap-2">
+						<span>Active filters:</span>
+						{searchQuery && (
+							<span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
+								Search: "{searchQuery}"
+							</span>
+						)}
+						<span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">Filter: {filter}</span>
+					</div>
 				)}
 			</div>
 
